@@ -1,6 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render
-
+import markdown
 from . import util
 
 def page_not_found(request, exception):
@@ -11,17 +11,10 @@ def index(request):
         "entries": util.list_entries()
     })
 
-def render_css(request):
-    return render(request, 'encyclopedia/CSS.html')
-
-def render_django(request):
-    return render(request, 'encyclopedia/Django.html')
-
-def render_git(request):
-    return render(request, 'encyclopedia/Git.html')
-
-def render_python(request):
-    return render(request, 'encyclopedia/Python.html')
-
-def render_html(request):
-    return render(request, 'encyclopedia/HTML.html')
+def render_entry(request, title):
+    md_text = util.get_entry(title)
+    html_file = markdown.markdown(md_text)
+    return render(request, "encyclopedia/entry.html", {
+        'title': title,
+        'content': html_file
+    })
