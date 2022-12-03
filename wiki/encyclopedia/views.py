@@ -12,6 +12,8 @@ def index(request):
     })
 
 def render_entry(request, title):
+    if not util.get_entry(title):
+        return render(request, "encyclopedia/404.html")
     md_text = util.get_entry(title)
     html_file = markdown.markdown(md_text)
     return render(request, "encyclopedia/entry.html", {
