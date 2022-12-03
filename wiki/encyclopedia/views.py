@@ -12,9 +12,10 @@ class CreatePageForm(forms.Form):
     text_area = forms.CharField(label='Please add some text', widget=forms.Textarea(
         attrs={'rows': 1, 'cols': 10}), min_length=50, max_length=5000)
 
-
-def page_not_found(request, exception):
-    return render(request, 'encyclopedia/404.html', status=404)
+class EditPageForm(forms.Form):
+    title = forms.CharField(label='Change title', min_length=10, max_length=100)
+    text_area = forms.CharField(label='Change text', widget=forms.Textarea(
+        attrs={'rows': 1, 'cols': 10}), min_length=50, max_length=5000)
 
 def index(request):
     form = InputForm
@@ -60,7 +61,6 @@ def search(request):
                         'form': form_instance,
                     })
 
-
 def new(request):
     form = InputForm()
     if request.method == 'POST':
@@ -88,7 +88,25 @@ def new(request):
         return render(request, 'encyclopedia/new.html', {
             'form': form,
             'form_text': form_page
-        }
-                      )
+        })
 
-
+def edit(request, title):
+    form = InputForm()
+    if request.method == 'POST':
+        form_page = EditPageForm(request.POST)
+        if form_page.is_valid():
+            title_page = form_page.cleaned_data.get('title')
+            text_area = form_page.cleaned_data.get('text_area')
+            util.save_entry(title_page, text_area)
+            html_text = markdown.markdown(text_area)
+            return render(request, 'encyclopedia/entry.html', {
+                'title': title_page,
+                'content': html_text,
+                'form': form,
+            })
+    else:
+        edit_page = EditPageForm({'title': title, 'text_area': util.get_entry(title)})
+        return render(request, 'encyclopedia/edit.html', {
+            'form': form,
+            'edit_page': edit_page,
+        })

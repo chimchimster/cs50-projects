@@ -8,6 +8,6 @@ urlpatterns = [
     path('wiki/<str:title>', views.entry, name='entry'),
     path('search', views.search, name='search'),
     path('new', views.new, name='new'),
+    path('edit/<str:title>', views.edit, name='edit')
 
 ]
-handler404 = 'encyclopedia.views.page_not_found'
