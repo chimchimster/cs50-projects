@@ -2,6 +2,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
 import markdown
+from random import choice
 from . import util
 
 class InputForm(forms.Form):
@@ -31,7 +32,7 @@ def entry(request, title):
     html_file = markdown.markdown(md_text)
     return render(request, "encyclopedia/entry.html", {
         'title': title,
-        'content': html_file
+        'content': html_file,
     })
 
 def search(request):
@@ -93,20 +94,37 @@ def new(request):
 def edit(request, title):
     form = InputForm()
     if request.method == 'POST':
-        form_page = EditPageForm(request.POST)
-        if form_page.is_valid():
-            title_page = form_page.cleaned_data.get('title')
-            text_area = form_page.cleaned_data.get('text_area')
-            util.save_entry(title_page, text_area)
-            html_text = markdown.markdown(text_area)
+        edit_form = EditPageForm(request.POST)
+        if edit_form.is_valid():
+            title_in = edit_form.cleaned_data.get('title')
+            text = edit_form.cleaned_data.get('text_area')
+            util.save_entry(title_in, text)
+            html_text = markdown.markdown(text)
             return render(request, 'encyclopedia/entry.html', {
-                'title': title_page,
-                'content': html_text,
                 'form': form,
-            })
-    else:
-        edit_page = EditPageForm({'title': title, 'text_area': util.get_entry(title)})
+                'title': title_in,
+                'content': html_text,
+                })
+    elif request.method == 'GET':
+        edit_form = EditPageForm({'title': title, 'text_area': util.get_entry(title)})
         return render(request, 'encyclopedia/edit.html', {
             'form': form,
-            'edit_page': edit_page,
+            'title': title,
+            'edit_form': edit_form,
+            })
+    return render(request, 'encyclopedia/404.html', {
+            'form': form,
+            'title': title,
+            'content': 'Page is Already Exists!'
         })
+
+def random_choice(request):
+    form = InputForm()
+    choosed = choice(util.list_entries())
+    md_text = util.get_entry(choosed)
+    html_text = markdown.markdown(md_text)
+    return render(request, f'encyclopedia/entry.html', {
+        'form': form,
+        'title': choosed,
+        'content': html_text,
+    })
