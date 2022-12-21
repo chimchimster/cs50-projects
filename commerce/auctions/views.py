@@ -116,7 +116,7 @@ def unique_listing(request, listing_id):
     })
 
 
-
+@login_required
 def create_listing(request):
     if request.method == 'POST':
         form = CreateForm(request.POST, request.FILES)
@@ -134,6 +134,7 @@ def create_listing(request):
             'form': form,
         })
 
+@login_required
 def remove_from_watchlist(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     if WatchList.objects.filter(user=request.user, listing=listing_id).exists():
@@ -149,6 +150,8 @@ def remove_from_watchlist(request, listing_id):
             'message': 'Listing is not in Watch List'
         })
 
+
+@login_required
 def add_to_watchlist(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     if WatchList.objects.filter(user=request.user, listing=listing_id).exists():
@@ -163,6 +166,7 @@ def add_to_watchlist(request, listing_id):
         'message': 'Added to watchlist'
     })
 
+@login_required
 def watchlist(request):
     watchlist = WatchList.objects.all()
     wl = [_.listing.all for _ in watchlist]
@@ -174,6 +178,7 @@ def watchlist(request):
         return render(request, 'auctions/watchlist.html')
 
 
+@login_required
 def bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     author = listing.creator
@@ -207,6 +212,7 @@ def bid(request, listing_id):
             'bid_form': bid
         })
 
+@login_required
 def close_bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     winner = Bids.objects.filter(listing=listing).last()
@@ -226,3 +232,18 @@ def close_bid(request, listing_id):
 
 
         })
+
+
+def categories(request):
+    listings = Listings.objects.all()
+    categories_ = {category.category for category in listings}
+    return render(request, 'auctions/categories.html', {
+        'categories_': categories_
+    })
+
+def unique_category(request, category):
+    all_listings = Listings.objects.all()
+    listings_of_category = [listing for listing in all_listings if listing.category == category]
+    return render(request, 'auctions/category.html', {
+        'listings_of_category': listings_of_category,
+    })

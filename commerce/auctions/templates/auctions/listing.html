@@ -21,7 +21,10 @@
             <a href="{% url 'close' listing_id=listing.id %}" role="button" >Close Bids</a>
         {% endif %}
         {% else %}
-            Auction is STOPPED. {{ winner }}
+            Auction is STOPPED.
+        {% endif %}
+        {% if winner %}
+            {{ winner }}
         {% endif %}
 
         {% if message_closed %}
