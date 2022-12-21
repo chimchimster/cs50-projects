@@ -7,7 +7,8 @@ from django.http.response import Http404
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, Listings, WatchList
+from .models import User, Listings, WatchList, Bids
+import datetime
 
 class BidForm(forms.Form):
     bid = forms.IntegerField()
@@ -104,12 +105,16 @@ def unique_listing(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     author = listing.creator
     stopped = listing.is_open
+    winner = None
+    if Bids.objects.filter(listing=listing).exists():
+        winner = Bids.objects.filter(listing=listing).last().user
     return render(request, 'auctions/listing.html', {
         'listing': listing,
         'is_author': author,
         'stopped': stopped,
-
+        'winner': f'The winner is {winner}'
     })
+
 
 
 def create_listing(request):
@@ -171,6 +176,8 @@ def watchlist(request):
 
 def bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
+    author = listing.creator
+    stopped = listing.is_open
     if request.method == 'POST':
         bid = BidForm(request.POST)
         if bid.is_valid():
@@ -179,13 +186,19 @@ def bid(request, listing_id):
                 return render(request, 'auctions/listing.html', {
                     'listing': listing,
                     'message_bid': 'Bid must be greater than actual bid'
-                })
+                    })
             else:
+                bid_instance = Bids()
+                bid_instance.user = request.user
+                bid_instance.listing = listing
+                bid_instance.save()
                 listing.price = data
                 listing.save()
-                return render(request, 'auctions/listing.html', {
+                return render(request,'auctions/listing.html', {
                     'listing': listing,
-                    'message_bid': 'Bid accepted'
+                    'message_bid': 'Bid accepted',
+                    'author': author,
+                    'stopped': stopped
                 })
     else:
         bid = BidForm()
@@ -196,18 +209,20 @@ def bid(request, listing_id):
 
 def close_bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
+    winner = Bids.objects.filter(listing=listing).last()
     if not listing.is_open:
         listing.is_open = True
         listing.save()
         return render(request, 'auctions/listing.html', {
             'listing': listing,
             'message_closed': 'Auction is stopped',
-
+            'winner': f'The winner is {winner}'
         })
     else:
         return render(request, 'auctions/listing.html', {
             'listing': listing,
             'message_closed': 'Auction is already stopped',
+            'winner': f'The winner is {winner}'
+
 
         })
-

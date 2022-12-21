@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+import datetime
 
 class User(AbstractUser):
     pass
@@ -43,7 +43,7 @@ class WatchList(models.Model):
 
 class Bids(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    bid = models.ManyToManyField(Listings)
+    listing = models.ForeignKey(Listings, on_delete=models.CASCADE, default='')
 
     def __str__(self):
         return f'Bids of the {self.user}'

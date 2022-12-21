@@ -17,19 +17,24 @@
         <a href="{% url 'remove_wl' listing_id=listing.id %}" role="button">Remove from WatchList</a>
         {% if not stopped %}
             <a href="{% url 'bid' listing_id=listing.id %}" role="button">Place a Bid</a>
-        {% endif %}
         {% if user == is_author %}
             <a href="{% url 'close' listing_id=listing.id %}" role="button" >Close Bids</a>
         {% endif %}
+        {% else %}
+            Auction is STOPPED. {{ winner }}
+        {% endif %}
+
         {% if message_closed %}
             {{ message_closed }}
         {% endif %}
+        {% if not stopped %}
         {% if bid_form %}
             <form action type="sumbit" method="post">
             {% csrf_token %}
             {{ bid_form }}
             <input type="submit" name="submit" value="submit">
         </form>
+        {% endif %}
         {% endif %}
             {% if message %}
                 {{ message }}
