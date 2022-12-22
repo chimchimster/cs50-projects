@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from .models import User, Listings, WatchList, Bids
-import datetime
+
 
 class BidForm(forms.Form):
     bid = forms.IntegerField()

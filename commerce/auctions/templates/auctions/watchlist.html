@@ -1,15 +1,28 @@
 {% extends 'auctions/layout.html' %}
 
 {% block body %}
-<ul>
+<h2>My Watch List</h2>
     {% for w in watchlist %}
-        <li>
-            <a href="{% url 'listing' listing_id=w.id %}">{{w.title}}</a>
-
-        </li>
+    <div style="display: grid; grid-template-columns: 400px 600px">
+        <div style="padding: 20px;">
+            <img src="{{ w.image.url }}" alt="{{ w.title }}" width="400" height="220">
+        </div>
+        <div style="padding: 50px; text-align: right; margin: 20px;">
+             <h3>
+            <a href="{% url 'listing' listing_id=w.id %}">{{ w.title }}</a>
+        </h3>
+        <h4>
+            Actual bid is {{ w.price }} $
+        </h4>
+        <h5>
+            {{ w.description }}
+        </h5>
+        <h6>
+            Author of auction is {{ w.creator }}
+        </h6>
+        </div>
+    </div>
     {% empty %}
      No Listings
     {% endfor %}
-
-</ul>
 {% endblock %}
