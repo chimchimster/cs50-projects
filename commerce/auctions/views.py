@@ -29,7 +29,9 @@ class CreateForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(),
             'price': forms.NumberInput(),
-            'description': forms.TextInput(),
+            'description': forms.Textarea(
+                attrs={'rows': 12, 'cols': 50}
+            ),
             'link': forms.TextInput(),
         }
 
@@ -123,11 +125,14 @@ def create_listing(request):
         if form.is_valid():
             result = form.save(commit=False)
             result.creator = request.user
-            result.save()
-            listings = Listings.objects.all()
-            return render(request, 'auctions/listings.html', {
-                'listings': listings,
-            })
+            if result.image == '':
+                return HttpResponseRedirect(reverse('create'))
+            else:
+                result.save()
+                listings = Listings.objects.all()
+                return render(request, 'auctions/index.html', {
+                    'listings': listings,
+                })
     else:
         form = CreateForm()
         return render(request, 'auctions/create.html', {

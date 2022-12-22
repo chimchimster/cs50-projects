@@ -3,16 +3,38 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-<div>
-    <ul>
+<div style="display: grid; grid-template-columns: 400px 600px">
     {% for listing in listings %}
-       <li><a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a></li>
+    <div style="padding: 20px;">
+        {% if listing.image %}
+        <img src="{{ listing.image.url }}" alt="{{ listing.title }}" width="400" height="220">
+        {% endif %}
+    </div>
+    <div style="padding: 50px; text-align: right; margin: 20px;">
+        <h3>
+            <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>
+        </h3>
+        <h4>
+            Actual bid is {{ listing.price }} $
+        </h4>
+        <h5>
+            {{ listing.description }}
+        </h5>
+        <h6>
+            Author of auction is {{ listing.creator }}
+        </h6>
+    </div>
     {% endfor %}
-    </ul>
 </div>
-
 {% if user.is_authenticated %}
-    <a href="{% url 'create' %}">Create Listing</a>
+    <div style="display: grid; grid-template-columns: 400px 600px">
+        <div>
+
+        </div>
+        <div style="margin-left: 390px;">
+            <a style="margin: 20px;" href="{% url 'create' %}" class="btn btn-primary">Create Listing</a>
+        </div>
+    </div>
 {% else %}
     Only authenticated users are able to create listing!
 {% endif %}

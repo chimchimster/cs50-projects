@@ -2,13 +2,44 @@
 
 {% block body %}
 
-
-
 <form action type="submit" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" name="Submit" value="submit">
+  <div style="display: grid; grid-template-columns: 300px 300px; margin: 20px;">
+    <div>
+      <p>Insert title of your listing</p>
+    {{ form.title }}
+    </div>
+    <div>
+      <p>Insert price of your listing</p>
+    {{ form.price }}
+    </div>
+  </div>
+  <div style="margin: 20px;">
+    <p>Insert description of your listing</p>
+    {{ form.description }}
+  </div>
+  <div style="display: grid; grid-template-columns: 300px 300px; margin: 20px;">
+  <div>
+    <p>Provide url for your image</p>
+    {{ form.link }}
+  </div>
+  <div>
+    <p>Provide image</p>
+    {{ form.image }}
+  </div>
+  </div>
+  <div style="display: grid; grid-template-columns: 300px 300px; margin: 20px;">
+  <div>
+    {{ form.category }}
+  </div>
+  <div>
+    <input type="submit" name="Submit" value="submit" class="btn btn-primary">
+  </div>
 </form>
-
+<div>
+{% if required_message %}
+  {{ required_message }}
+{% endif %}
+</div>
 
 {% endblock %}
