@@ -30,7 +30,7 @@
             <a href="{% url 'remove_wl' listing_id=listing.id %}" role="button" class="btn btn-primary">Remove from WatchList</a>
         </div>
         <div>
-            {% if not stopped %}
+            {% if not listing.is_open %}
             <div style="margin: 20px;">
             <a href="{% url 'bid' listing_id=listing.id %}" role="button" class="btn btn-primary">Place a Bid</a>
             </div>
@@ -44,26 +44,54 @@
                 {% endif %}
             </div>
             {% if user == is_author %}
+            <div style="margin: 20px;">
                 <a href="{% url 'close' listing_id=listing.id %}" role="button" class="btn btn-primary">Close Bids</a>
-            {% endif %}
+            <div>
+                {% endif %}
             {% else %}
+            <div style="margin: 20px;">
                 Auction is STOPPED.
+            </div>
             {% endif %}
-        <div>
-        {% if winner %}
-            {{ winner }}
+        {% if winner != '' and not listing.is_open %}
+            <div style="margin: 20px;">
+            Last bid was made by {{ winner }}!
+            </div>
+        {% else %}
+            <div style="margin: 20px;">
+            The winner is {{ winner }}!
+            </div>
         {% endif %}
 
         {% if message_closed %}
+            <div style="margin: 20px;">
             {{ message_closed }}
+            </div>
         {% endif %}
-            {% if message %}
-                {{ message }}
-            {% endif %}
+        {% if message %}
+            <div style="margin: 20px;">
+            {{ message }}
+            </div>
+        {% endif %}
             {% if message_bid %}
+                <div style="margin: 20px;">
                 {{ message_bid }}
+                </div>
             {% endif %}
         {% endif %}
     </div>
 </div>
+<ul>
+{% if all_comments != '' %}
+   {% for comment in all_comments %}
+       <li>{{ comment.title }}
+       {{ comment.comment }}</li>
+   {% endfor %}
+{% endif %}
+</ul>
+<form action type="submit" method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <input type="submit" value="submit" name="submit">
+</form>
 {% endblock %}

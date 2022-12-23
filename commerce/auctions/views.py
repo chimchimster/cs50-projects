@@ -7,8 +7,20 @@ from django.http.response import Http404
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, Listings, WatchList, Bids
+from .models import User, Listings, WatchList, Bids, Comment
 
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('title', 'comment')
+        lables = {
+            'title': '',
+            'comment': '',
+        }
+        widgets = {
+            'title': forms.TextInput(),
+            'comment': forms.Textarea(),
+        }
 
 class BidForm(forms.Form):
     bid = forms.IntegerField()
@@ -107,14 +119,14 @@ def unique_listing(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     author = listing.creator
     stopped = listing.is_open
-    winner = None
+    winner = ''
     if Bids.objects.filter(listing=listing).exists():
         winner = Bids.objects.filter(listing=listing).last().user
     return render(request, 'auctions/listing.html', {
         'listing': listing,
         'is_author': author,
         'stopped': stopped,
-        'winner': f'The winner is {winner}'
+        'winner': winner,
     })
 
 
@@ -142,33 +154,43 @@ def create_listing(request):
 @login_required
 def remove_from_watchlist(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
+    winner = ''
+    if Bids.objects.filter(listing=listing).exists():
+        winner = Bids.objects.filter(listing=listing).last().user
     if WatchList.objects.filter(user=request.user, listing=listing_id).exists():
         wl = WatchList.objects.get(listing=listing_id)
         wl.delete()
         return render(request, 'auctions/listing.html', {
             'listing': listing,
-            'message': 'Removed from Watch List'
+            'message': 'Removed from Watch List',
+            'winner': winner,
     })
     else:
         return render(request, 'auctions/listing.html', {
             'listing': listing,
-            'message': 'Listing is not in Watch List'
+            'message': 'Listing is not in Watch List',
+            'winner': winner
         })
 
 
 @login_required
 def add_to_watchlist(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
+    winner = ''
+    if Bids.objects.filter(listing=listing).exists():
+        winner = Bids.objects.filter(listing=listing).last().user
     if WatchList.objects.filter(user=request.user, listing=listing_id).exists():
         return render(request, 'auctions/listing.html', {
             'listing': listing,
             'message': 'Already added to Watch List',
+            'winner': winner,
         })
     user_list, created = WatchList.objects.get_or_create(user=request.user)
     user_list.listing.add(listing)
     return render(request, "auctions/listing.html", {
         'listing': listing,
-        'message': 'Added to watchlist'
+        'message': 'Added to watchlist',
+        'winner': winner,
     })
 
 @login_required
@@ -188,6 +210,9 @@ def bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
     author = listing.creator
     stopped = listing.is_open
+    winner = ''
+    if Bids.objects.filter(listing=listing).exists():
+        winner = Bids.objects.filter(listing=listing).last().user
     if request.method == 'POST':
         bid = BidForm(request.POST)
         if bid.is_valid():
@@ -208,32 +233,36 @@ def bid(request, listing_id):
                     'listing': listing,
                     'message_bid': 'Bid accepted',
                     'author': author,
-                    'stopped': stopped
+                    'stopped': stopped,
+                    'winner': winner
                 })
     else:
         bid = BidForm()
         return render(request, 'auctions/listing.html', {
             'listing': listing,
-            'bid_form': bid
+            'bid_form': bid,
+            'winner': winner
         })
 
 @login_required
 def close_bid(request, listing_id):
     listing = Listings.objects.get(id=listing_id)
-    winner = Bids.objects.filter(listing=listing).last()
+    winner = ''
+    if Bids.objects.filter(listing=listing).exists():
+        winner = Bids.objects.filter(listing=listing).last().user
     if not listing.is_open:
         listing.is_open = True
         listing.save()
         return render(request, 'auctions/listing.html', {
             'listing': listing,
             'message_closed': 'Auction is stopped',
-            'winner': f'The winner is {winner}'
+            'winner': winner
         })
     else:
         return render(request, 'auctions/listing.html', {
             'listing': listing,
             'message_closed': 'Auction is already stopped',
-            'winner': f'The winner is {winner}'
+            'winner': winner,
 
 
         })
@@ -252,3 +281,32 @@ def unique_category(request, category):
     return render(request, 'auctions/category.html', {
         'listings_of_category': listings_of_category,
     })
+
+def comment(request, listing_id):
+    listing = Listings.objects.get(id=listing_id)
+    all_comments = ''
+    if Comment.objects.filter(listing=listing).exists():
+        all_comments = Comment.objects.filter(listing=listing).all()
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            c = Comment()
+            title = comment_form.cleaned_data.get('title')
+            user_comment = comment_form.cleaned_data.get('comment')
+            c.title = title
+            c.comment = user_comment
+            c.user = request.user
+            c.listing = listing
+            c.save()
+            return render(request, 'auctions/listing.html', {
+                'listing': listing,
+                'comment_form': comment_form,
+                'all_comments': all_comments,
+            })
+    else:
+        comment_form = CommentForm()
+        return render(request, 'auctions/listing.html', {
+            'listing': listing,
+            'comment_form': comment_form,
+            'all_comments': all_comments,
+        })

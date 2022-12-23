@@ -47,3 +47,12 @@ class Bids(models.Model):
 
     def __str__(self):
         return f'Bids of the {self.user}'
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default='')
+    listing = models.ForeignKey(Listings, on_delete=models.CASCADE, default='')
+    title = models.CharField(max_length=64, default='')
+    comment = models.CharField(max_length=300, default='')
+
+    def __str__(self):
+        return f'Comment of {self.user} to {self.listing}'
