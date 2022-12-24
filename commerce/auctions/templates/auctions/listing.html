@@ -15,15 +15,22 @@
         <h4>
             Actual bid is {{ listing.price }} $
         </h4>
-        <h5>
-            {{ listing.description }}
-        </h5>
         <h6>
             Author of auction is {{ listing.creator }}
         </h6>
     </div>
 </div>
+<div style="margin: 20px;"><h4>Description</h4></div>
+<div style="margin: 20px; display: grid; grid-template-columns: 1000px auto">
+    <h5>
+
+    {{ listing.description }}
+    </h5>
+</div>
     <div>
+        <div style="margin: 20px;">
+        <a href="{% url 'comments' listing_id=listing.id %}" role="button" class="btn btn-primary">Watch all comments or leave comment</a>
+        </div>
     {% if user.is_authenticated %}
         <div style="margin: 20px;">
         <a href="{% url 'add_wl' listing_id=listing.id %}" role="button" class="btn btn-primary">Add to WatchList</a>
@@ -53,6 +60,7 @@
                 Auction is STOPPED.
             </div>
             {% endif %}
+        {% if winner %}
         {% if winner != '' and not listing.is_open %}
             <div style="margin: 20px;">
             Last bid was made by {{ winner }}!
@@ -62,7 +70,7 @@
             The winner is {{ winner }}!
             </div>
         {% endif %}
-
+        {% endif %}
         {% if message_closed %}
             <div style="margin: 20px;">
             {{ message_closed }}
@@ -82,16 +90,36 @@
     </div>
 </div>
 <ul>
+<div style="display: grid; grid-template-columns: 400px 600px">
+<div>
 {% if all_comments != '' %}
    {% for comment in all_comments %}
-       <li>{{ comment.title }}
-       {{ comment.comment }}</li>
+       <li><h5>Title: {{ comment.title }}</h5>
+       <h6>comment: {{ comment.comment }}</h6>
+       <h6>from user {{ comment.user }}</h6></li>
    {% endfor %}
 {% endif %}
-</ul>
+</div>
+<div>
+{% if comment_form  %}
+<div style="margin: 20px;">
 <form action type="submit" method="post">
     {% csrf_token %}
-    {{ comment_form.as_p }}
-    <input type="submit" value="submit" name="submit">
+    <div>
+        <p>Provide title for your comment</p>
+        {{ comment_form.title }}
+    </div>
+    <div>
+        <p>Provide comment</p>
+        {{ comment_form.comment }}
+    </div>
+    <div>
+        <input type="submit" value="submit" name="submit" class="btn btn-primary">
+    </div>
 </form>
+</div>
+</div>
+</div>
+
+{% endif %}
 {% endblock %}

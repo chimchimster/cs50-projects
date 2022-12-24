@@ -302,6 +302,7 @@ def comment(request, listing_id):
                 'listing': listing,
                 'comment_form': comment_form,
                 'all_comments': all_comments,
+
             })
     else:
         comment_form = CommentForm()

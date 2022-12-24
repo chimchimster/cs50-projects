@@ -18,7 +18,7 @@
             Actual bid is {{ listing.price }} $
         </h4>
         <h5>
-            {{ listing.description }}
+            {{ listing.description|slice:":35" }}...
         </h5>
         <h6>
             Author of auction is {{ listing.creator }}
