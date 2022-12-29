@@ -8,10 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').onsubmit = send_email;
-
   // By default, load the inbox
-  load_mailbox('inbox');
+
+
+
 });
+
 
 function compose_email() {
 
@@ -33,30 +35,52 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // Show the emails of particular mailbox
+  get_all_emails();
 }
 
+
 function send_email() {
-    const recipients = document.querySelector('#compose-recipients').value;
-    const subject = document.querySelector('#compose-subject').value;
-    const body = document.querySelector('#compose-body').value;
-    console.log(recipients);
+    const recipients = document.querySelector('#compose-recipients').value
+    const subject = document.querySelector('#compose-subject').value
+    const body = document.querySelector('#compose-body').value
+
     fetch('/emails', {
         method: 'POST',
         body: JSON.stringify({
             recipients: recipients,
             subject: subject,
             body: body
-            })
         })
+    })
     .then(response => response.json())
         .then(result => {
             if ("message" in result) {
+                console.log(result);
                 load_mailbox('sent');
-            }
+                }
             if ("error" in result) {
-                document.querySelector('#to-text-error-message').innerHTML = result['error']
-            }
-            console.log(result);
-            console.log('message' in result);
-            console.log('error' in result);
+                console.log(result);
+                document.querySelector('#error-occurs').innerHTML = result["error"]
+                }
+            })
+            .catch(error => {
+                console.log(error);
         });
+    return false;
+    }
+
+function get_all_emails() {
+    fetch('emails/inbox')
+    .then(response => response.json())
+    .then(emails => {
+        emails.forEach(email => {
+            let div = document.createElement('div');
+            div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>CONTENT: ${email.body}`;
+            console.log(div);
+            document.querySelector('#emails-list').innerHTML += `${div.innerHTML}<br>`
+            });
+        console.log(emails);
+        });
+    }
