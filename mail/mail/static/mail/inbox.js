@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email() {
   clear_all_emails();
+  deactivate_current_button('compose')
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
@@ -28,6 +29,9 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
+  // Update to null view one particular email
+  document.querySelector('#view-email').innerHTML = '';
+
   // List which stores mailbox buttons
   let all_buttons = ['inbox', 'sent', 'archive', 'compose'];
   console.log(all_buttons)
@@ -93,12 +97,21 @@ function get_all_emails(mailbox) {
     .then(emails => {
         emails.forEach(email => {
             let div = document.createElement('div');
+            if (email.read === false) {
+                div.style.backgroundColor = 'white';
+            } else {
+                div.style.backgroundColor = 'gray';
+            }
+            div.setAttribute("id", "unique-email");
+            console.log(div.id);
             div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP: ${email.timestamp}`;
-            document.querySelector('#emails-list').innerHTML += `${div.innerHTML}<br>`
+            document.querySelector('#emails-view').append(div);
+            div.addEventListener('click', function() {
+                view_email(email.id, mailbox, email);
             });
-        console.log(emails);
         });
-    }
+    });
+}
 
 function clear_all_emails() {
     document.querySelector('#emails-list').innerHTML = "";
@@ -116,3 +129,21 @@ function activate_disabled_button(mailbox) {
     document.querySelector(`#${mailbox}`).disabled = false;
     }
 }
+
+function view_email(email_id, mailbox, email) {
+    fetch(`/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+                read: true
+                })
+            })
+            .then(response => response.json())
+            .then(email => {
+                document.querySelector('#emails-view').innerHTML = '';
+                if (mailbox === "inbox") {
+                    document.querySelector('#view-email').innerHTML = `From: ${email.sender}<br>Subject:${email.subject}<br>Email:${email.body}`;
+                }
+    })
+}
+
+
