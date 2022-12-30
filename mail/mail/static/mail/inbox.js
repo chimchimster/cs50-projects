@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
+  document.querySelector('#archive').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').onsubmit = send_email;
   // By default, load the inbox
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email() {
   clear_all_emails();
-  activate_disabled_button('inbox');
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
@@ -29,13 +28,21 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
+  // List which stores mailbox buttons
+  let all_buttons = ['inbox', 'sent', 'archive', 'compose'];
+  console.log(all_buttons)
+  let filteredButtons = all_buttons.filter(function(e) {return e !== mailbox})
+  all_buttons.forEach(box => {
+    activate_disabled_button(box);
+  });
+  deactivate_current_button(mailbox);
+  filteredButtons.push(mailbox);
+  all_buttons = filteredButtons;
   // Show the emails of particular mailbox
   if (mailbox === 'inbox') {
     get_all_emails(mailbox);
-    deactivate_current_button(mailbox);
   } else {
     clear_all_emails();
-    activate_disabled_button('inbox');
   }
 
   // Show the mailbox and hide other views
@@ -101,6 +108,11 @@ function deactivate_current_button(mailbox) {
     document.querySelector(`#${mailbox}`).disabled = true;
 }
 
+
 function activate_disabled_button(mailbox) {
+    if (mailbox == 'archive') {
+        document.querySelector('#archive').disabled = false;
+    } else {
     document.querySelector(`#${mailbox}`).disabled = false;
+    }
 }
