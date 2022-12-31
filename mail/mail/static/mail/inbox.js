@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archive').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').onsubmit = send_email;
+  document.querySelector('#back-to-mailbox').addEventListener('click', () => load_mailbox('inbox'));
   // By default, load the inbox
 
   load_mailbox('inbox')
@@ -55,7 +56,7 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-
+  document.querySelector('#back-to-mailbox').style.display = 'none';
 
 
 }
@@ -96,6 +97,8 @@ function get_all_emails(mailbox) {
     .then(response => response.json())
     .then(emails => {
         emails.forEach(email => {
+            let btn = document.createElement('button');
+            btn.setAttribute("id", "archive-email")
             let div = document.createElement('div');
             if (email.read === false) {
                 div.style.backgroundColor = 'white';
@@ -103,7 +106,6 @@ function get_all_emails(mailbox) {
                 div.style.backgroundColor = 'gray';
             }
             div.setAttribute("id", "unique-email");
-            console.log(div.id);
             div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP: ${email.timestamp}`;
             document.querySelector('#emails-view').append(div);
             div.addEventListener('click', function() {
@@ -134,16 +136,14 @@ function view_email(email_id, mailbox, email) {
     fetch(`/emails/${email_id}`, {
         method: 'PUT',
         body: JSON.stringify({
-                read: true
+                read: true,
                 })
             })
-            .then(response => response.json())
-            .then(email => {
-                document.querySelector('#emails-view').innerHTML = '';
-                if (mailbox === "inbox") {
-                    document.querySelector('#view-email').innerHTML = `From: ${email.sender}<br>Subject:${email.subject}<br>Email:${email.body}`;
-                }
-    })
-}
+            document.querySelector('#emails-view').innerHTML = '';
+            if (mailbox === "inbox") {
+                document.querySelector('#view-email').innerHTML = `From: ${email.sender}<br>Subject: ${email.subject}<br>Email:<br>${email.body}`;
+            }
+        document.querySelector('#back-to-mailbox').style.display = 'block';
 
+    }
 
