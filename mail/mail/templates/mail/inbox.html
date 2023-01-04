@@ -43,22 +43,6 @@
         </form>
     </div>
 
-    <div id="reply-view">
-        <h3>Reply on email</h3>
-        <form id="reply-form">
-            <div class="form-group">
-                From: <input disabled class="form-control" value="{{ request.user.email }}">
-            </div>
-            <div class="form-group">
-                To: <input id="email-to-recipients" disabled class="form-control" value="">
-            </div>
-            <div class="form-group">
-                <input class="form-control" id="reply-subject" placeholder="Subject">
-            </div>
-            <textarea class="form-control" id="reply-body" placeholder="Body"></textarea>
-            <input id="reply-email" type="submit" class="btn btn-primary">
-        </form>
-    </div>
 
 {% endblock %}
 

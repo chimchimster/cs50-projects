@@ -20,10 +20,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email() {
   clear_all_emails();
-  deactivate_current_button('compose')
+  deactivate_current_button('compose');
+  activate_disabled_button('inbox');
+  activate_disabled_button('sent');
+  activate_disabled_button('archive');
+  document.querySelector('#compose-recipients').disabled = false;
+  document.querySelector('#compose-subject').disabled = false;
+
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#back-to-mailbox').style.display = 'none';
+  document.querySelector('#archive-email').style.display = 'none';
+  document.querySelector('#reply-on-email').style.display = 'none';
+  document.querySelector('#view-email').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -49,10 +59,13 @@ function load_mailbox(mailbox) {
   // Show the emails of particular mailbox
   if (mailbox === 'inbox') {
     get_all_emails(mailbox);
+    document.querySelector('#view-email').style.display = 'block';
   } else if (mailbox === 'archive') {
     get_archived_emails(mailbox);
+    document.querySelector('#view-email').style.display = 'block';
   } else if (mailbox === 'sent') {
     get_sent_emails(mailbox);
+    document.querySelector('#view-email').style.display = 'block';
   } else {
     clear_all_emails();
   }
@@ -66,7 +79,6 @@ function load_mailbox(mailbox) {
   document.querySelector('#back-to-archived').style.display = 'none';
   document.querySelector('#unarchive-email').style.display = 'none';
   document.querySelector('#reply-on-email').style.display = 'none';
-  document.querySelector('#reply-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -233,14 +245,18 @@ function get_sent_emails(mailbox) {
 
 
 function reply_email(email) {
-    let recipient = email.recipients;
-    document.querySelector('#email-to-recipients').innerHTML = recipient;
-
+    let sender = email.sender;
+    let subject = email.subject;
+    let timestamp = email.timestamp;
+    let text = email.body;
+    document.querySelector('#compose-recipients').value = sender;
+    document.querySelector('#compose-body').value = `On ${timestamp} ${sender} wrote: ${text}`
+    document.querySelector('#compose-subject').value = `Re: ${subject}`;
+    document.querySelector('#compose-recipients').disabled = true;
+    document.querySelector('#compose-subject').disabled = true;
     document.querySelector('#back-to-mailbox').style.display = 'none';
     document.querySelector('#archive-email').style.display = 'none';
     document.querySelector('#reply-on-email').style.display = 'none';
     document.querySelector('#view-email').style.display = 'none';
-    document.querySelector('#reply-view').style.display = 'block';
-
-
+    document.querySelector('#compose-view').style.display = 'block';
 }
