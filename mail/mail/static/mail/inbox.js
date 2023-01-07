@@ -126,8 +126,10 @@ function get_all_emails(mailbox) {
             if (email.read === false) {
                 div.style.backgroundColor = 'white';
             } else {
-                div.style.backgroundColor = 'gray';
+                div.style.backgroundColor = '#CACACA';
             }
+            div.style.margin = "20px";
+            div.style.padding = "20px";
             div.setAttribute("id", "unique-email");
             div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP: ${email.timestamp}`;
             document.querySelector('#emails-view').append(div);
