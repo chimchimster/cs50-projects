@@ -130,6 +130,7 @@ function get_all_emails(mailbox) {
             }
             div.style.margin = "20px";
             div.style.padding = "20px";
+            div.style.border = "1px solid black"
             div.setAttribute("id", "unique-email");
             div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP: ${email.timestamp}`;
             document.querySelector('#emails-view').append(div);
@@ -168,7 +169,7 @@ function view_email(email_id, mailbox, email) {
                 })
             })
         document.querySelector('#emails-view').innerHTML = '';
-        document.querySelector('#view-email').innerHTML = `From: ${email.sender}<br>Subject: ${email.subject}<br>Email:<br>${email.body}`;
+        document.querySelector('#view-email').innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br><br>EMAIL:<br>${email.body}`;
         if (mailbox === 'inbox') {
             document.querySelector('#back-to-mailbox').style.display = 'block';
             document.querySelector('#archive-email').style.display = 'block';
@@ -215,7 +216,10 @@ function get_archived_emails(mailbox) {
                 if (email.archived == true) {
                     let div = document.createElement('div');
                     div.setAttribute("id", "arch-email");
-                    div.innerHTML = `From: ${email.sender}<br>Subject: ${email.subject}<br>Email:<br>${email.body}`;
+                    div.style.margin = "20px";
+                    div.style.padding = "20px";
+                    div.style.border = "1px solid black"
+                    div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP:${email.timestamp}`;
                     document.querySelector('#emails-view').append(div);
                     div.addEventListener('click', function() {
                         view_email(email.id, mailbox, email);
@@ -235,7 +239,10 @@ function get_sent_emails(mailbox) {
                     if (email.sender === email_owner) {
                         let div = document.createElement('div');
                         div.setAttribute('id', 'sent-emails');
-                        div.innerHTML = `From: ${email.sender}<br>Subject: ${email.subject}<br>Email:<br>${email.body}`;
+                        div.style.margin = "20px";
+                        div.style.padding = "20px";
+                        div.style.border = "1px solid black"
+                        div.innerHTML = `FROM: ${email.sender}<br>SUBJECT: ${email.subject}<br>TIMESTAMP:${email.timestamp}`;
                         document.querySelector('#emails-view').append(div);
                         div.addEventListener('click', function() {
                             view_email(email.id, mailbox, email);
