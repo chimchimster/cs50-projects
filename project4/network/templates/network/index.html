@@ -3,18 +3,47 @@
 
 {% block body %}
     {% if user.is_authenticated %}
-    <form action type="submit" method="post">
-    {% csrf_token %}
-        <div>
-            <h5>New Post</h5>
-            {{ post_form.text_area }}
-        </div>
-        <div>
-            <input type="submit" value="Submit Form" name="submit">
-        </div>
-    </form>
+        {% if post_form %}
+        <form action type="submit" method="post">
+        {% csrf_token %}
+            <div>
+                <h5>New Post</h5>
+                {{ post_form.text_area }}
+            </div>
+            <div>
+                <input type="submit" value="Submit Form" name="submit">
+            </div>
+        </form>
+        {% endif %}
+        {% if posts %}
+            <div>
+            {% for post in posts %}
+                    <h4>Post of {{ post.user }}<h4>
+                    <div><p>{{ post.text }}</p></div>
+                    <div>Post has been published at {{ post.publishing_date }}</div>
+                    <div>Post has been edited at {{ post.edit_date }}</div>
+                    <div>Likes: {{ post.likes }}</div>
+            {% endfor %}
+            </div>
+            {% endif %}
     {% endif %}
+    {% if profile %}
+        <div style="margin-left: 40px; margin-top: 20px; margin-bottom: 20px;">
+            <h3>Profile of {{ user }}</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 180px 180px;">
+            <div style="text-align: center;">
+                <h5>Followers</h5>
+                {{ followers_amount }}
+            </div>
+            <div style="text-align: center;">
+                <h5>Followed</h5>
+                {{ followed_amount }}
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}
 {% block script %}
-    <script src="{% static 'mail/index.js' %}"></script>
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
