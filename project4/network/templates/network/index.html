@@ -1,5 +1,20 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+    <form action type="submit" method="post">
+    {% csrf_token %}
+        <div>
+            <h5>New Post</h5>
+            {{ post_form.text_area }}
+        </div>
+        <div>
+            <input type="submit" value="Submit Form" name="submit">
+        </div>
+    </form>
+    {% endif %}
+{% endblock %}
+{% block script %}
+    <script src="{% static 'mail/index.js' %}"></script>
 {% endblock %}
