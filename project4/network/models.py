@@ -3,10 +3,25 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """" All about User"""
+    """ All about User """
 
     followers_amount = models.IntegerField(default=0)
     followed_amount = models.IntegerField(default=0)
+    follower = models.ManyToManyField('self')
+
+    @property
+    def followers_list(self):
+        return list(self.follower.all())
+
+    @followers_list.setter
+    def followers_list(self, item):
+        followers = list(self.follower.all())
+        followers.append(item)
+
+    @followers_list.deleter
+    def followers_list(self, item):
+        followers = list(self.follower.all())
+        followers.pop(followers.index(item))
 
 class Post(models.Model):
     """ Model which is responsible for each unique post that user creates """

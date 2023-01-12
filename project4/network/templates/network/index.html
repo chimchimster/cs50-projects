@@ -1,6 +1,7 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
+
 {% block body %}
     {% if user.is_authenticated %}
         {% if post_form %}
@@ -24,26 +25,32 @@
                     <div>Post has been edited at {{ post.edit_date }}</div>
                     <div>Likes: {{ post.likes }}</div>
             {% endfor %}
-            </div>
-            {% endif %}
-    {% endif %}
-    {% if profile %}
-        <div style="margin-left: 40px; margin-top: 20px; margin-bottom: 20px;">
-            <h3>Profile of {{ user }}</h3>
         </div>
-        <div style="display: grid; grid-template-columns: 180px 180px;">
-            <div style="text-align: center;">
-                <h5>Followers</h5>
-                {{ followers_amount }}
+        {% endif %}
+        {% if profile %}
+            <div style="margin-left: 40px; margin-top: 20px; margin-bottom: 20px;">
+                <h3>Profile of {{ user }}</h3>
             </div>
-            <div style="text-align: center;">
-                <h5>Followed</h5>
-                {{ followed_amount }}
+            <div style="display: grid; grid-template-columns: 180px 180px;">
+                <div style="text-align: center;">
+                    <h5>Followers</h5>
+                    {{ followers_amount }}
+                </div>
+                <div style="text-align: center;">
+                    <h5>Followed</h5>
+                    {{ followed_amount }}
+                </div>
             </div>
-        </div>
+            <div style="display: grid; grid-template-columns: 180px 180px;">
+                 <div style="margin-left: 60px; margin-top: 20px; margin-bottom: 20px;">
+                    <button id="follow" name="follow" value="Follow">Follow</button>
+                </div>
+                 <div style="margin-left: 50px; margin-top: 20px; margin-bottom: 20px;">
+                    <button id="unfollow" name="unfollow" value="Unfollow">Unfollow</button>
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 
-{% endblock %}
-{% block script %}
-    <script src="{% static 'network/index.js' %}"></script>
+
 {% endblock %}

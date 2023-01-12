@@ -1,8 +1,10 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post
 from .forms import PostFrom
@@ -27,13 +29,21 @@ def all_posts(request):
         'posts': posts[::-1],
     })
 
+@csrf_exempt
 def profile(request, user):
-    profile = user
+    if request.method == 'POST':
+        update_follower = User.objects.get(username=user)
+        data = json.loads(request.body)
+        new_follower = data.get('follower')
+        print(new_follower)
+        update_follower.followers_list = new_follower
+        update_follower.save()
+
+    profile = user[:]
     followers_amount = User.objects.get(username=user).followers_amount
     followed_amount = User.objects.get(username=user).followed_amount
     return render(request, 'network/index.html', {
         'profile': profile,
-        'user': user,
         'followers_amount': followers_amount,
         'followed_amount': followed_amount,
     })
