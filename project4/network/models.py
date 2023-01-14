@@ -5,23 +5,15 @@ from django.db import models
 class User(AbstractUser):
     """ All about User """
 
-    followers_amount = models.IntegerField(default=0)
-    followed_amount = models.IntegerField(default=0)
-    follower = models.ManyToManyField('self')
 
-    @property
-    def followers_list(self):
-        return list(self.follower.all())
+class Profile(models.Model):
+    """ Model represents unique Profile with followers """
 
-    @followers_list.setter
-    def followers_list(self, item):
-        followers = list(self.follower.all())
-        followers.append(item)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    followers = models.ManyToManyField(User, related_name='followers')
 
-    @followers_list.deleter
-    def followers_list(self, item):
-        followers = list(self.follower.all())
-        followers.pop(followers.index(item))
+    def __str__(self):
+        return f'Profile of {self.user} with {self.followers.count()} followers'
 
 class Post(models.Model):
     """ Model which is responsible for each unique post that user creates """

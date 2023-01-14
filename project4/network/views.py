@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Post
+from .models import User, Post, Profile
 from .forms import PostFrom
 
 def index(request):
@@ -30,23 +30,18 @@ def all_posts(request):
     })
 
 @csrf_exempt
-def profile(request, user):
+def profile(request, profile):
     if request.method == 'POST':
-        update_follower = User.objects.get(username=user)
         data = json.loads(request.body)
-        new_follower = data.get('follower')
-        print(new_follower)
-        update_follower.followers_list = new_follower
-        update_follower.save()
-
-    profile = user[:]
-    followers_amount = User.objects.get(username=user).followers_amount
-    followed_amount = User.objects.get(username=user).followed_amount
-    return render(request, 'network/index.html', {
-        'profile': profile,
-        'followers_amount': followers_amount,
-        'followed_amount': followed_amount,
-    })
+        user = data.get('follower')
+        new_follower = request.user
+        check_for_profile = Profile.objects.filter(user__username=user)
+        return render(request, 'network/index.html')
+    else:
+        return render(request, 'network/index.html', {
+            'profile': profile,
+            'followers_amount': 1,
+        })
 
 def login_view(request):
     if request.method == "POST":

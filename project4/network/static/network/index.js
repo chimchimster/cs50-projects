@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const user = document.querySelector("#user").innerHTML;
+    let user = document.querySelector("#profile").innerHTML;
     console.log(user);
     document.querySelector("#follow").onsubmit = follow(user);
 })
