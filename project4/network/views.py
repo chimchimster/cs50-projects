@@ -34,13 +34,15 @@ def profile(request, profile):
     if request.method == 'POST':
         data = json.loads(request.body)
         user = data.get('follower')
-        new_follower = request.user
-        check_for_profile = Profile.objects.filter(user__username=user)
+        _profile = Profile.objects.get(user__username=user)
+        _profile.followers.add(request.user)
+        _profile.save()
         return render(request, 'network/index.html')
     else:
+        followers_amount = Profile.objects.get(user__username=profile).followers.count()
         return render(request, 'network/index.html', {
             'profile': profile,
-            'followers_amount': 1,
+            'followers_amount': followers_amount,
         })
 
 def login_view(request):
