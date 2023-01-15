@@ -47,6 +47,16 @@ def subscribe(request, profile):
         _profile.save()
     return JsonResponse([profile], safe=False)
 
+@csrf_exempt
+def unsubscribe(request, profile):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user = data.get('unfollower')
+        _profile = Profile.objects.get(user__username=user)
+        _profile.followers.remove(request.user)
+        _profile.save()
+    return JsonResponse([profile], safe=False)
+
 def login_view(request):
     if request.method == "POST":
 

@@ -13,4 +13,5 @@ urlpatterns = [
 
     #API routes
     path("profile/<str:profile>/subscribe", views.subscribe, name="subscribe"),
+    path("profile/<str:profile>/unsubscribe", views.unsubscribe, name="unsubscribe"),
 ]
