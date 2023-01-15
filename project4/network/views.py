@@ -1,7 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -29,21 +29,23 @@ def all_posts(request):
         'posts': posts[::-1],
     })
 
-@csrf_exempt
+
 def profile(request, profile):
+    followers_amount = Profile.objects.get(user__username=profile).followers.count()
+    return render(request, 'network/index.html', {
+        'profile': profile,
+        'followers_amount': followers_amount,
+    })
+
+@csrf_exempt
+def subscribe(request, profile):
     if request.method == 'POST':
         data = json.loads(request.body)
         user = data.get('follower')
         _profile = Profile.objects.get(user__username=user)
         _profile.followers.add(request.user)
         _profile.save()
-        return render(request, 'network/index.html')
-    else:
-        followers_amount = Profile.objects.get(user__username=profile).followers.count()
-        return render(request, 'network/index.html', {
-            'profile': profile,
-            'followers_amount': followers_amount,
-        })
+    return JsonResponse([profile], safe=False)
 
 def login_view(request):
     if request.method == "POST":

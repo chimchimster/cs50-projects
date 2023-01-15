@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
     let user = document.querySelector("#profile").innerHTML;
-    console.log(user);
-    document.querySelector("#follow").onsubmit = follow(user);
+    document.querySelector("#follow").addEventListener('click', () => follow(user));
+
 })
 
 function follow(user) {
-    fetch(`/profile/${user}`, {
+    fetch(`/profile/${user}/subscribe`, {
         method: 'POST',
         body: JSON.stringify({
             follower: user
