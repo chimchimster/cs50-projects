@@ -32,9 +32,11 @@ def all_posts(request):
 
 def profile(request, profile):
     followers_amount = Profile.objects.get(user__username=profile).followers.count()
+    follows_amount = Profile.objects.get(user__username=profile).follows.count()
     return render(request, 'network/index.html', {
         'profile': profile,
         'followers_amount': followers_amount,
+        'follows_amount': follows_amount,
     })
 
 @csrf_exempt
@@ -45,6 +47,10 @@ def subscribe(request, profile):
         _profile = Profile.objects.get(user__username=user)
         _profile.followers.add(request.user)
         _profile.save()
+        _follows_profile = Profile.objects.get(user__username=request.user)
+        _follows_profile_id = _profile.id
+        _follows_profile.follows.add(_follows_profile_id)
+        _follows_profile.save()
     return JsonResponse([profile], safe=False)
 
 @csrf_exempt
@@ -56,6 +62,10 @@ def unsubscribe(request, profile):
         _profile.followers.remove(request.user)
         _profile.save()
     return JsonResponse([profile], safe=False)
+
+def get_followers(request, profile):
+    followers = Profile.objects.get(user__username=profile).followers.all()
+    return JsonResponse({'data': list(followers)}, safe=False)
 
 def login_view(request):
     if request.method == "POST":

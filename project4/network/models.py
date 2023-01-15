@@ -11,9 +11,10 @@ class Profile(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     followers = models.ManyToManyField(User, related_name='followers')
+    follows = models.ManyToManyField(User, related_name='follows')
 
     def __str__(self):
-        return f'Profile of {self.user} with {self.followers.count()} followers'
+        return f'Profile of {self.user} with {self.followers.count()} followers, follows {self.follows.count()}'
 
 class Post(models.Model):
     """ Model which is responsible for each unique post that user creates """
