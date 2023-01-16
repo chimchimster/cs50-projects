@@ -10,8 +10,8 @@ class Profile(models.Model):
     """ Model represents unique Profile with followers """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    followers = models.ManyToManyField(User, related_name='followers')
-    follows = models.ManyToManyField(User, related_name='follows')
+    followers = models.ManyToManyField(User, related_name='followers', null=True, blank=True)
+    follows = models.ManyToManyField(User, related_name='follows', null=True, blank=True)
 
     def __str__(self):
         return f'Profile of {self.user} with {self.followers.count()} followers, follows {self.follows.count()}'

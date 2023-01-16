@@ -17,17 +17,6 @@
             </div>
         </form>
         {% endif %}
-        {% if posts %}
-            <div>
-            {% for post in posts %}
-                    <h4>Post of {{ post.user }}<h4>
-                    <div><p>{{ post.text }}</p></div>
-                    <div>Post has been published at {{ post.publishing_date }}</div>
-                    <div>Post has been edited at {{ post.edit_date }}</div>
-                    <div>Likes: {{ post.likes }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
         {% if profile %}
             <div style="margin-left: 40px; margin-top: 20px; margin-bottom: 20px;">
                 <h3>Profile of {{ profile }}</h3>
@@ -52,8 +41,69 @@
                 </div>
             </div>
             {% endif %}
+            {% if profile_posts %}
+            <div>
+                {% for post in profile_posts %}
+                    <h4>Post of {{ post.user }}<h4>
+                    <div><p>{{ post.text }}</p></div>
+                    <div>Post has been published at {{ post.publishing_date }}</div>
+                    <div>Post has been edited at {{ post.edit_date }}</div>
+                    <div>Likes: {{ post.likes }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
         {% endif %}
+
+        <div id="posts">
+
+        </div>
     {% endif %}
 
+{% block script %}
+<script>
 
+    // Start with first post
+    let counter = 1;
+
+    // Load 10 posts at a time
+    const quantity = 10;
+
+    // When DOM loads, render the first 10 posts;
+    document.addEventListener('DOMContentLoaded', load);
+
+    // If scrolled to bottom, render the first 10 posts
+    window.onscroll = () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            load();
+        }
+    }
+
+    // Load set of posts
+    function load() {
+        // Set start and end post numbers, and update counter
+        const start = counter;
+        const end = start + quantity - 1;
+        counter = end + 1;
+
+        // Get new posts and add posts
+        fetch(`/posts?start=${start}&end=${end}`)
+        .then(response => response.json())
+        .then(data => {
+            data.posts.forEach(add_post);
+        })
+    }
+
+    // Add a new post with given contents to DOM
+    function add_post(contents) {
+
+        // Create new post
+        const post = document.createElement('div');
+        post.className = 'post'
+        post.innerHTML = contents;
+
+        // Add post to DOM
+        document.querySelector('#posts').append(post);
+    }
+</script>
+{% endblock %}
 {% endblock %}

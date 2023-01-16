@@ -1,9 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Define profile of user
     let user = document.querySelector("#profile").innerHTML;
+
+    // Adding events to follow/unfollow buttons
     document.querySelector("#follow").addEventListener('click', () => follow(user));
     document.querySelector("#unfollow").addEventListener('click', () => unfollow(user));
 
 })
+
 
 function follow(user) {
     fetch(`/profile/${user}/subscribe`, {

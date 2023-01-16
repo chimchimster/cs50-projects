@@ -1,4 +1,6 @@
 import json
+import time
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -24,19 +26,44 @@ def index(request):
         })
 
 def all_posts(request):
+    return render(request, 'network/index.html')
+
+def posts(request):
+
+    # Get start and end points
+    start = int(request.GET.get('start') or 0)
+    end = int(request.GET.get('end') or (start+9))
+
+    # Load all posts of all users
     posts = Post.objects.all()
-    return render(request, 'network/index.html', {
-        'posts': posts[::-1],
+    posts = [post for post in posts]
+    posts.reverse()
+
+    # Generate list of posts
+    data = []
+    for i in range(start, end + 1):
+        data.append(i)
+
+    # Delay speed of response
+    time.sleep(1)
+
+    # Return list of posts
+    return JsonResponse({
+       'posts': data,
     })
 
 
 def profile(request, profile):
     followers_amount = Profile.objects.get(user__username=profile).followers.count()
     follows_amount = Profile.objects.get(user__username=profile).follows.count()
+    profile_posts = Post.objects.filter(user__username=profile).select_related('user')
+    all_posts = [post for post in profile_posts]
+    all_posts.reverse()
     return render(request, 'network/index.html', {
         'profile': profile,
         'followers_amount': followers_amount,
         'follows_amount': follows_amount,
+        'profile_posts': all_posts,
     })
 
 @csrf_exempt
@@ -64,8 +91,8 @@ def unsubscribe(request, profile):
     return JsonResponse([profile], safe=False)
 
 def get_followers(request, profile):
-    followers = Profile.objects.get(user__username=profile).followers.all()
-    return JsonResponse({'data': list(followers)}, safe=False)
+    # for button follow/unfollow
+    pass
 
 def login_view(request):
     if request.method == "POST":
