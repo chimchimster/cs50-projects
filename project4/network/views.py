@@ -35,14 +35,25 @@ def posts(request):
     end = int(request.GET.get('end') or (start+9))
 
     # Load all posts of all users
-    posts = Post.objects.all()
+    posts = Post.objects.all().values()
     posts = [post for post in posts]
     posts.reverse()
 
     # Generate list of posts
     data = []
-    for i in range(start, end + 1):
-        data.append(i)
+    try:
+        for i in range(start, end + 1):
+            user = User.objects.get(pk=posts[i]['user_id'])
+            print(user)
+            data.append((
+                user,
+                posts[i]['publishing_date'],
+                posts[i]['edit_date'],
+                posts[i]['text'],
+                posts[i]['likes']
+            ))
+    except IndexError:
+        pass
 
     # Delay speed of response
     time.sleep(1)
