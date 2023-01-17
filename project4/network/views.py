@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
 
 from .models import User, Post, Profile
 from .forms import PostFrom
@@ -26,39 +27,26 @@ def index(request):
         })
 
 def all_posts(request):
-    return render(request, 'network/index.html')
+    flag = 'all_posts'
+    return render(request, 'network/index.html', {
+        'flag': flag,
+    })
 
 def posts(request):
-
-    # Get start and end points
     start = int(request.GET.get('start') or 0)
     end = int(request.GET.get('end') or (start+9))
 
-    # Load all posts of all users
-    posts = Post.objects.all().values()
-    posts = [post for post in posts]
-    posts.reverse()
+    posts = serializers.serialize(
+        'json',  Post.objects.all()
+    )
 
-    # Generate list of posts
     data = []
     try:
         for i in range(start, end + 1):
-            user = User.objects.get(pk=posts[i]['user_id'])
-            print(user)
-            data.append((
-                user,
-                posts[i]['publishing_date'],
-                posts[i]['edit_date'],
-                posts[i]['text'],
-                posts[i]['likes']
-            ))
+            data.append(json.loads(posts)[i])
     except IndexError:
         pass
 
-    # Delay speed of response
-    time.sleep(1)
-
-    # Return list of posts
     return JsonResponse({
        'posts': data,
     })
