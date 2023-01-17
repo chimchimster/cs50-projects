@@ -1,13 +1,13 @@
 // Start with first post
 let counter = 1;
 
-// Load 10 posts at a time
+// Load 20 posts at a time
 const quantity = 20;
 
-// When DOM loads, render the first 10 posts;
+// When DOM loads, render the first 20 posts;
 document.addEventListener('DOMContentLoaded', load);
 
-// If scrolled to bottom, render the first 10 posts
+// If scrolled to bottom, render the first 20 posts
 window.onscroll = () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
         load();

@@ -1,5 +1,4 @@
 import json
-import time
 
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
