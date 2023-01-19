@@ -35,9 +35,7 @@ def posts(request):
     start = int(request.GET.get('start') or 0)
     end = int(request.GET.get('end') or (start+9))
 
-    posts = serializers.serialize(
-        'json',  Post.objects.all()
-    )
+    posts = serializers.serialize('json',  Post.objects.all())
 
     data = []
     try:
@@ -73,8 +71,7 @@ def subscribe(request, profile):
         _profile.followers.add(request.user)
         _profile.save()
         _follows_profile = Profile.objects.get(user__username=request.user)
-        _follows_profile_id = _profile.id
-        _follows_profile.follows.add(_follows_profile_id)
+        _follows_profile.follows.add(_profile.id)
         _follows_profile.save()
     return JsonResponse([profile], safe=False)
 
