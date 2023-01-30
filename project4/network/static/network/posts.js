@@ -35,7 +35,7 @@ function add_post(contents) {
     // Create new post
     const post = document.createElement('div');
     post.className = 'post'
-    post.innerHTML = `POST: ${contents.fields.text}<br>TIMESTAMP: ${contents.fields.publishing_date}<br>EDITED: ${contents.fields.edit_date}<br>LIKES: ${contents.fields.likes}`;
+    post.innerHTML = `POST: ${contents.text}<br>USER: ${contents.username}<br>TIMESTAMP: ${contents.publishing_date}<br>EDITED: ${contents.edit_date}<br>LIKES: ${contents.likes}`;
 
     // Add post to DOM
     document.querySelector('#posts').append(post);

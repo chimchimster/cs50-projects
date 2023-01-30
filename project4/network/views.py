@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -35,11 +35,23 @@ def posts(request):
     start = int(request.GET.get('start') or 0)
     end = int(request.GET.get('end') or (start+9))
 
-    posts = serializers.serialize('json',  Post.objects.all())
+    def create_posts():
+        with connection.cursor() as cursor:
+            qwry = "SELECT network_user.id, username, publishing_date, edit_date, text," \
+                    " likes FROM network_user INNER JOIN network_post" \
+                    " ON network_user.id = network_post.user_id;"
+            cursor.execute(qwry)
+            columns = [col[0] for col in cursor.description]
+            connected_tables = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        return connected_tables
+
+    posts = json.dumps(create_posts(), default=str)
 
     data = []
     try:
         for i in range(start, end + 1):
+            print(json.loads(posts)[i])
             data.append(json.loads(posts)[i])
     except IndexError:
         pass
