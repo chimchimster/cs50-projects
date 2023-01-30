@@ -60,7 +60,7 @@
     {% endif %}
 
 {% block script %}
-{% if flag %}
+{% if flag == 'all_posts' %}
 <script src="{% static '/network/posts.js' %}"></script>
 {% endif %}
 {% endblock %}

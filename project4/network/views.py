@@ -6,7 +6,6 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.core import serializers
 
 from .models import User, Post, Profile
 from .forms import PostFrom
@@ -39,7 +38,7 @@ def posts(request):
         with connection.cursor() as cursor:
             qwry = "SELECT network_user.id, username, publishing_date, edit_date, text," \
                     " likes FROM network_user INNER JOIN network_post" \
-                    " ON network_user.id = network_post.user_id;"
+                    " ON network_user.id = network_post.user_id ORDER BY network_post.id DESC;"
             cursor.execute(qwry)
             columns = [col[0] for col in cursor.description]
             connected_tables = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -51,7 +50,6 @@ def posts(request):
     data = []
     try:
         for i in range(start, end + 1):
-            print(json.loads(posts)[i])
             data.append(json.loads(posts)[i])
     except IndexError:
         pass
