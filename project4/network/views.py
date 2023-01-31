@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator
 from django.db import IntegrityError, connection
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -11,6 +12,8 @@ from .models import User, Post, Profile
 from .forms import PostFrom
 
 def index(request):
+    """ View represents creating new User's post """
+
     if request.method == "POST":
         post_form = PostFrom(request.POST)
         if post_form.is_valid():
@@ -31,10 +34,17 @@ def all_posts(request):
     })
 
 def posts(request):
+    """ API which does lazy-load for all posts  """
+
     start = int(request.GET.get('start') or 0)
     end = int(request.GET.get('end') or (start+9))
 
     def create_posts():
+        """
+        SQL query which connects 2 tables Post and User
+        using user.id and post.user_id.
+        """
+
         with connection.cursor() as cursor:
             qwry = "SELECT network_user.id, username, publishing_date, edit_date, text," \
                     " likes FROM network_user INNER JOIN network_post" \
@@ -45,8 +55,10 @@ def posts(request):
 
         return connected_tables
 
+    # Normalize query to JSON
     posts = json.dumps(create_posts(), default=str)
 
+    # Create list and fill it by JSON objects
     data = []
     try:
         for i in range(start, end + 1):
@@ -60,16 +72,24 @@ def posts(request):
 
 
 def profile(request, profile):
+    # Counting followers_amount and follows_amount
+    # to display it at the user's profile
     followers_amount = Profile.objects.get(user__username=profile).followers.count()
     follows_amount = Profile.objects.get(user__username=profile).follows.count()
-    profile_posts = Post.objects.filter(user__username=profile).select_related('user')
-    all_posts = [post for post in profile_posts]
-    all_posts.reverse()
+
+    # Creating QuerySet which contains all posts of user
+    profile_posts = Post.objects.filter(user__username=profile).select_related('user').order_by('-pk')
+
+    # Creating object of Paginator with posts of user (display 5)
+    paginator = Paginator(profile_posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'network/index.html', {
         'profile': profile,
         'followers_amount': followers_amount,
         'follows_amount': follows_amount,
-        'profile_posts': all_posts,
+        'page_obj': page_obj,
     })
 
 @csrf_exempt

@@ -41,15 +41,31 @@
                 </div>
             </div>
             {% endif %}
-            {% if profile_posts %}
-            <div>
-                {% for post in profile_posts %}
-                    <h4>Post of {{ post.user }}<h4>
-                    <div><p>{{ post.text }}</p></div>
-                    <div>Post has been published at {{ post.publishing_date }}</div>
-                    <div>Post has been edited at {{ post.edit_date }}</div>
-                    <div>Likes: {{ post.likes }}</div>
+            {% if page_obj.has_other_pages %}
+            <div class="paginator">
+                <div class="post">
+                {% for post in page_obj.object_list %}
+                    <p>USER: {{ post.user }}</p>
+                    <p>TIMESTAMP: {{ post.publishing_date }}</p>
+                    <p>EDITED AT: {{ post.edit_date }}</p>
+                    <p>TEXT: {{ post.text }}</p>
+                    <p>LIKES: {{ post.likes }}</p>
                 {% endfor %}
+                </div>
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1"> first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last</a>
+                    {% endif %}
+                </span>
             </div>
             {% endif %}
         {% endif %}
