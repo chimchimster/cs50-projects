@@ -39,24 +39,12 @@ def posts(request):
     start = int(request.GET.get('start') or 0)
     end = int(request.GET.get('end') or (start+9))
 
-    def create_posts():
-        """
-        SQL query which connects 2 tables Post and User
-        using user.id and post.user_id.
-        """
-
-        with connection.cursor() as cursor:
-            qwry = "SELECT network_user.id, username, publishing_date, edit_date, text," \
-                    " likes FROM network_user INNER JOIN network_post" \
-                    " ON network_user.id = network_post.user_id ORDER BY network_post.id DESC;"
-            cursor.execute(qwry)
-            columns = [col[0] for col in cursor.description]
-            connected_tables = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-        return connected_tables
+    qwry = "SELECT network_user.id, username, publishing_date, edit_date, text," \
+           " likes FROM network_user INNER JOIN network_post" \
+           " ON network_user.id = network_post.user_id ORDER BY network_post.id DESC;"
 
     # Normalize query to JSON
-    posts = json.dumps(create_posts(), default=str)
+    posts = json.dumps(create_posts(qwry), default=str)
 
     # Create list and fill it by JSON objects
     data = []
@@ -115,9 +103,25 @@ def unsubscribe(request, profile):
         _profile.save()
     return JsonResponse([profile], safe=False)
 
+
+def follows(request, profile):
+    """ View represents posts connected with followers user is followed by """
+    qwry = "SELECT username, publishing_date, edit_date, text, likes" \
+           " FROM network_post" \
+           " INNER JOIN network_profile_follows ON network_post.user_id = network_profile_follows.user_id" \
+           " INNER JOIN network_user ON network_user.id = network_post.user_id" \
+           " WHERE network_user.id in (SELECT user_id  FROM  network_profile_follows);"
+    print(create_posts(qwry))
+
+    return render(request, 'network/index.html', {
+
+    })
+
+
 def get_followers(request, profile):
     # for button follow/unfollow
     pass
+
 
 def login_view(request):
     if request.method == "POST":
@@ -169,3 +173,16 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+def create_posts(qwry):
+    """
+    SQL query which connects 2 tables.
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(qwry)
+        columns = [col[0] for col in cursor.description]
+        connected_tables = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    return connected_tables
