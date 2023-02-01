@@ -41,7 +41,6 @@
                 </div>
             </div>
             {% endif %}
-            {% if page_obj.has_other_pages %}
             <div class="paginator">
                 <div class="post">
                 {% for post in page_obj.object_list %}
@@ -52,6 +51,7 @@
                     <p>LIKES: {{ post.likes }}</p>
                 {% endfor %}
                 </div>
+                {% if page_obj.has_other_pages %}
                 <span class="step-links">
                     {% if page_obj.has_previous %}
                         <a href="?page=1"> first</a>
@@ -75,7 +75,8 @@
         </div>
     {% endif %}
 
-{{ posts }}
+
+
 
 {% block script %}
 {% if flag == 'all_posts' %}

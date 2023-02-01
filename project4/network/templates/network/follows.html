@@ -1,0 +1,31 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+<div class="paginator">
+                <div class="post">
+                {% for post in page_obj.object_list %}
+                    <p>USER: {{ post.username }}</p>
+                    <p>TIMESTAMP: {{ post.publishing_date }}</p>
+                    <p>EDITED AT: {{ post.edit_date }}</p>
+                    <p>TEXT: {{ post.text }}</p>
+                    <p>LIKES: {{ post.likes }}</p>
+                {% endfor %}
+                </div>
+                {% if page_obj.has_other_pages %}
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1"> first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+{% endblock %}

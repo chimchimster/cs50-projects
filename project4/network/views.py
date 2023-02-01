@@ -80,8 +80,28 @@ def profile(request, profile):
         'page_obj': page_obj,
     })
 
+def follows(request, profile):
+
+    qwry = "SELECT username, publishing_date, edit_date, text, likes" \
+           " FROM network_post" \
+           " INNER JOIN network_profile_follows ON network_post.user_id = network_profile_follows.user_id" \
+           " INNER JOIN network_user ON network_user.id = network_post.user_id" \
+           " WHERE network_user.id in (SELECT user_id  FROM  network_profile_follows);"
+
+    paginator = Paginator(create_posts(qwry), 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+
+    return render(request, 'network/follows.html', {
+        'page_obj': page_obj,
+    })
+
+
 @csrf_exempt
 def subscribe(request, profile):
+    """ API which adds particular User into DB """
+
     if request.method == 'POST':
         data = json.loads(request.body)
         user = data.get('follower')
@@ -95,6 +115,8 @@ def subscribe(request, profile):
 
 @csrf_exempt
 def unsubscribe(request, profile):
+    """ API which removes particular User out of DB """
+
     if request.method == 'POST':
         data = json.loads(request.body)
         user = data.get('unfollower')
@@ -102,25 +124,6 @@ def unsubscribe(request, profile):
         _profile.followers.remove(request.user)
         _profile.save()
     return JsonResponse([profile], safe=False)
-
-
-def follows(request, profile):
-    """ View represents posts connected with followers user is followed by """
-    qwry = "SELECT username, publishing_date, edit_date, text, likes" \
-           " FROM network_post" \
-           " INNER JOIN network_profile_follows ON network_post.user_id = network_profile_follows.user_id" \
-           " INNER JOIN network_user ON network_user.id = network_post.user_id" \
-           " WHERE network_user.id in (SELECT user_id  FROM  network_profile_follows);"
-    print(create_posts(qwry))
-
-    return render(request, 'network/index.html', {
-
-    })
-
-
-def get_followers(request, profile):
-    # for button follow/unfollow
-    pass
 
 
 def login_view(request):
@@ -176,9 +179,7 @@ def register(request):
 
 
 def create_posts(qwry):
-    """
-    SQL query which connects 2 tables.
-    """
+    """ SQL query which connects 2 tables. """
 
     with connection.cursor() as cursor:
         cursor.execute(qwry)

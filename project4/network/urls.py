@@ -16,6 +16,6 @@ urlpatterns = [
     # API routes
     path("profile/<str:profile>/subscribe", views.subscribe, name="subscribe"),
     path("profile/<str:profile>/unsubscribe", views.unsubscribe, name="unsubscribe"),
-    path("profile/<str:profile>/followers", views.get_followers, name="followers"),
     path("posts", views.posts, name="posts"),
+
 ]
