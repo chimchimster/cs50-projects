@@ -82,11 +82,16 @@ def profile(request, profile):
 
 def follows(request, profile):
 
+    profile_id = User.objects.get(username=profile).id
+
+
     qwry = "SELECT username, publishing_date, edit_date, text, likes" \
            " FROM network_post" \
            " INNER JOIN network_profile_follows ON network_post.user_id = network_profile_follows.user_id" \
            " INNER JOIN network_user ON network_user.id = network_post.user_id" \
-           " WHERE network_user.id in (SELECT user_id  FROM  network_profile_follows);"
+           " WHERE network_user.id IN (SELECT profile_id  FROM  network_profile_follows)" \
+           f" AND profile_id='{profile_id}';"
+
 
     paginator = Paginator(create_posts(qwry), 5)
     page_number = request.GET.get('page')
