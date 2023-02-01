@@ -75,13 +75,11 @@
         </div>
     {% endif %}
 
-
-
-
 {% block script %}
 {% if flag == 'all_posts' %}
 <script src="{% static '/network/posts.js' %}"></script>
+{% else %}
+<script src="{% static '/network/index.js' %}"></script>
 {% endif %}
 {% endblock %}
-
 {% endblock %}

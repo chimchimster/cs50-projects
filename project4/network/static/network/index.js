@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 function follow(user) {
+    console.log(user)
     fetch(`/profile/${user}/subscribe`, {
         method: 'POST',
         body: JSON.stringify({

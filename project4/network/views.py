@@ -81,22 +81,20 @@ def profile(request, profile):
     })
 
 def follows(request, profile):
-
+    """ Generates all posts of profiles which particular profile follows  """
     profile_id = User.objects.get(username=profile).id
-
 
     qwry = "SELECT username, publishing_date, edit_date, text, likes" \
            " FROM network_post" \
            " INNER JOIN network_profile_follows ON network_post.user_id = network_profile_follows.user_id" \
            " INNER JOIN network_user ON network_user.id = network_post.user_id" \
            " WHERE network_user.id IN (SELECT profile_id  FROM  network_profile_follows)" \
-           f" AND profile_id='{profile_id}';"
-
+           f" AND profile_id='{profile_id}'" \
+           f" ORDER BY network_post.id DESC;"
 
     paginator = Paginator(create_posts(qwry), 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
 
     return render(request, 'network/follows.html', {
         'page_obj': page_obj,
@@ -108,14 +106,25 @@ def subscribe(request, profile):
     """ API which adds particular User into DB """
 
     if request.method == 'POST':
+        # Load JSON data from request
         data = json.loads(request.body)
+
+        # Take user which is going to be follower
         user = data.get('follower')
-        _profile = Profile.objects.get(user__username=user)
-        _profile.followers.add(request.user)
-        _profile.save()
-        _follows_profile = Profile.objects.get(user__username=request.user)
-        _follows_profile.follows.add(_profile.id)
-        _follows_profile.save()
+
+        # Take profile on which particular user will be follower
+        profile_to_subscribe = Profile.objects.get(user__username=user)
+
+        # Add user to table followers
+        profile_to_subscribe.followers.add(request.user)
+        profile_to_subscribe.save()
+
+        # Take profile of user to update table follows
+        # profiles on which user is subscribed
+        follows_profile = Profile.objects.get(user__username=request.user)
+        follows_profile.follows.add(profile_to_subscribe.id)
+        follows_profile.save()
+
     return JsonResponse([profile], safe=False)
 
 @csrf_exempt
@@ -123,11 +132,22 @@ def unsubscribe(request, profile):
     """ API which removes particular User out of DB """
 
     if request.method == 'POST':
+        # Load data from request
         data = json.loads(request.body)
+
+        # Define user which is going to unsubscribe
         user = data.get('unfollower')
-        _profile = Profile.objects.get(user__username=user)
-        _profile.followers.remove(request.user)
-        _profile.save()
+
+        # Find out profile from which user is going to unsubscribe
+        profile_to_unsubscribe = Profile.objects.get(user__username=user)
+        profile_to_unsubscribe.followers.remove(request.user)
+        profile_to_unsubscribe.save()
+
+        # Update table follows in user's profile
+        follows_profile = Profile.objects.get(user__username=request.user)
+        follows_profile.follows.remove(request.user)
+        follows_profile.save()
+
     return JsonResponse([profile], safe=False)
 
 
